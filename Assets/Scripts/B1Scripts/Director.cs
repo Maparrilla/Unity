@@ -29,7 +29,8 @@ public class Director : MonoBehaviour {
 	void Update () {
 
 		// Handle I/O Pointer Events
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		Ray ray = new Ray (Camera.main.transform.position, Camera.main.transform.forward);
+			//Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hit;
 		if (Input.GetButtonDown ("Fire1"))
 		{
