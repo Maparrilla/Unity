@@ -68,5 +68,36 @@ public class Director : MonoBehaviour {
 		}
 
 
+
+
+		// To avoid bunching, check each agent's destination.
+		// If an agent's destination has another near-stationary agent in it, retarget the destination to a slightly closer one.
+		// (B1 - Refined Navigation.1)
+		Vector3 offset_y = new Vector3 (0.0f, 1.0f, 0.0f); // evaluate overlap with other agents at a height of 1
+		foreach (NavMeshAgent agent in movingAgents)
+		{
+			Collider[] hitColliders = Physics.OverlapSphere (agent.destination + offset_y, 0.1f);
+
+			for (int i = 0; i < hitColliders.Length; i++)
+			{
+				NavMeshAgent other = hitColliders [i].gameObject.GetComponent<NavMeshAgent> ();
+
+				// If there is a near-stationary agent occupying the destination
+				if (other != null && other != agent && other.velocity.magnitude < 0.1f) {
+					Debug.Log ("Rerouting " + agent.gameObject.name);
+
+					// Redirect to a destination just short of the old one.
+					Vector3 opposite = agent.destination - agent.gameObject.transform.position;
+					agent.destination = agent.destination - (0.8f * opposite.normalized);
+					agent.Resume ();
+
+				}
+			}
+		}
+
+
+
+
+
 	}
 }
