@@ -4,11 +4,26 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
+	public enum RotationAxes { MouseXAndY = 0, MouseX = 1, MouseY = 2 }
+	public RotationAxes axes = RotationAxes.MouseXAndY;
+	public float sensitivityX = 5F;
+	public float sensitivityY = 5F;
+
+	public float minimumX = -360F;
+	public float maximumX = 360F;
+
+	public float minimumY = -60F;
+	public float maximumY = 60F;
+
+	float rotationY = 0F;
+
     public enum KEYBOARD_INPUT: int {
         RIGHT = KeyCode.D,
         LEFT = KeyCode.A,
         FORWARD = KeyCode.W,
-        BACK = KeyCode.S
+        BACK = KeyCode.S,
+		UP = KeyCode.E,
+		DOWN = KeyCode.Q
     }
 
     public int moveSpeed;
@@ -33,7 +48,7 @@ public class CameraController : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 
-        Vector3 vp = myCam.ScreenToViewportPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, myCam.nearClipPlane));
+        /*Vector3 vp = myCam.ScreenToViewportPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, myCam.nearClipPlane));
         vp.x -= 0.5f;
         vp.y -= 0.5f;
         vp.x *= sensitivity;
@@ -43,7 +58,34 @@ public class CameraController : MonoBehaviour {
         Vector3 sp = myCam.ViewportToScreenPoint(vp);
 
         Vector3 v = myCam.ScreenToWorldPoint(sp);
-        transform.LookAt(v, Vector3.up);
+        transform.LookAt(v, Vector3.up);*/
+
+
+		if (axes == RotationAxes.MouseXAndY)
+		{
+			float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
+
+			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
+
+			transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
+		}
+		else if (axes == RotationAxes.MouseX)
+		{
+			transform.Rotate(0, Input.GetAxis("Mouse X") * sensitivityX, 0);
+		}
+		else
+		{
+			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
+
+			transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
+		}
+
+		if (Input.GetKey(KeyCode.Space))
+			Cursor.lockState = CursorLockMode.None;
+		else
+			Cursor.lockState = CursorLockMode.Locked;
 
         foreach (KEYBOARD_INPUT val in System.Enum.GetValues(typeof(KEYBOARD_INPUT)))
         {
@@ -63,6 +105,12 @@ public class CameraController : MonoBehaviour {
                     case KEYBOARD_INPUT.RIGHT:
                         g_Camera.Translate(1 * moveSpeed * Time.deltaTime, 0, 0, Space.Self);
                         break;
+					case KEYBOARD_INPUT.UP:
+						g_Camera.Translate(0, 1 * moveSpeed * Time.deltaTime, 0, Space.Self);
+						break;
+					case KEYBOARD_INPUT.DOWN:
+					g_Camera.Translate(0, -1 * moveSpeed * Time.deltaTime, 0, Space.Self);
+						break;
                 }
             }
         }
