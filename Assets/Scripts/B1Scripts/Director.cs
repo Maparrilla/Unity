@@ -12,9 +12,7 @@ public class Director : MonoBehaviour {
 	private List<NavMeshAgent> selectedAgents; // Currently selected NavMeshAgents
 	private List<NavMeshAgent> movingAgents;   // Currently moving NavMeshAgents
 	private List<NavMeshObstacle> selectedObstacles;
-	private List<NavMeshObstacle> selectedNazguls;
-
-	public NavMeshObstacle nazzy;
+	private List<NavMeshAgent> selectedNazguls;
 
 	private Ray shootRay;        // Ray cast from mouse position (at camera)
 	private RaycastHit shootHit; // GameObject hit by shootRay
@@ -25,7 +23,7 @@ public class Director : MonoBehaviour {
 		selectedAgents = new List<NavMeshAgent> ();
 		movingAgents = new List<NavMeshAgent> ();
 		selectedObstacles = new List<NavMeshObstacle> ();
-		selectedNazguls = new List<NavMeshObstacle> ();
+		selectedNazguls = new List<NavMeshAgent> ();
 	}
 
 	// Update is called once per frame
@@ -53,7 +51,7 @@ public class Director : MonoBehaviour {
 
 				else if (hit.collider.CompareTag ("Nazgul"))
 				{
-					selectedNazguls.Add (hit.transform.gameObject.GetComponent<NavMeshObstacle> ());
+					selectedNazguls.Add (hit.transform.gameObject.GetComponent<NavMeshAgent> ());
 					Debug.Log ("Nazgul selected");
 				}
 					
@@ -73,7 +71,7 @@ public class Director : MonoBehaviour {
 					}
 					selectedObstacles.Clear (); // clear selection
 
-					foreach (NavMeshObstacle naz in selectedNazguls)
+					foreach (NavMeshAgent naz in selectedNazguls)
 					{
 						naz.SendMessage ("moveTo", hit.point);
 					}
@@ -93,22 +91,28 @@ public class Director : MonoBehaviour {
 		Vector3 offset_y = new Vector3 (0.0f, 1.0f, 0.0f); // check presence of other agents at an offset height of 1
 		foreach (NavMeshAgent agent in movingAgents)
 		{
-			Collider[] hitColliders = Physics.OverlapSphere (agent.destination + offset_y, 0.1f);
+			if (agent.isStopped)
+				movingAgents.Remove (agent);
 
-			// Check overlapping colliders
-			for (int i = 0; i < hitColliders.Length; i++)
+			else
 			{
-				NavMeshAgent other = hitColliders [i].gameObject.GetComponent<NavMeshAgent> ();
+				Collider[] hitColliders = Physics.OverlapSphere (agent.destination + offset_y, 0.1f);
 
-				// If there is a near-stationary agent occupying the destination
-				if (other != null && other != agent && other.velocity.magnitude < 0.1f) {
-					Debug.Log ("Rerouting " + agent.gameObject.name);
+				// Check overlapping colliders
+				for (int i = 0; i < hitColliders.Length; i++)
+				{
+					NavMeshAgent other = hitColliders [i].gameObject.GetComponent<NavMeshAgent> ();
 
-					// Redirect to a destination just short of the old one.
-					Vector3 opposite = agent.destination - agent.gameObject.transform.position;
-					agent.destination = agent.destination - (0.8f * opposite.normalized);
-					agent.Resume ();
+					// If there is a near-stationary agent occupying the destination
+					if (other != null && other != agent && other.velocity.magnitude < 0.1f) {
+						Debug.Log ("Rerouting " + agent.gameObject.name);
 
+						// Redirect to a destination just short of the old one.
+						Vector3 opposite = agent.destination - agent.gameObject.transform.position;
+						agent.destination = agent.destination - (0.8f * opposite.normalized);
+						agent.Resume ();
+
+					}
 				}
 			}
 		}
