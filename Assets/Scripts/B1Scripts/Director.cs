@@ -12,7 +12,10 @@ public class Director : MonoBehaviour {
 	private List<NavMeshAgent> selectedAgents; // Currently selected NavMeshAgents
 	private List<NavMeshAgent> movingAgents;   // Currently moving NavMeshAgents
 	private List<NavMeshObstacle> selectedObstacles;
-	private List<NavMeshAgent> selectedNazguls;
+	private List<NavMeshObstacle> selectedNazguls;
+
+	public NavMeshObstacle nazzy;
+
 	private Ray shootRay;        // Ray cast from mouse position (at camera)
 	private RaycastHit shootHit; // GameObject hit by shootRay
 
@@ -22,7 +25,7 @@ public class Director : MonoBehaviour {
 		selectedAgents = new List<NavMeshAgent> ();
 		movingAgents = new List<NavMeshAgent> ();
 		selectedObstacles = new List<NavMeshObstacle> ();
-		selectedNazguls = new List<NavMeshAgent> ();
+		selectedNazguls = new List<NavMeshObstacle> ();
 	}
 
 	// Update is called once per frame
@@ -48,6 +51,12 @@ public class Director : MonoBehaviour {
 					Debug.Log ("Obstacle selected");
 				}
 
+				else if (hit.collider.CompareTag ("Nazgul"))
+				{
+					selectedNazguls.Add (hit.transform.gameObject.GetComponent<NavMeshObstacle> ());
+					Debug.Log ("Nazgul selected");
+				}
+					
 				else // environment was selected
 				{
 					foreach (NavMeshAgent agent in selectedAgents)
@@ -63,6 +72,12 @@ public class Director : MonoBehaviour {
 						// move the obstacle
 					}
 					selectedObstacles.Clear (); // clear selection
+
+					foreach (NavMeshObstacle naz in selectedNazguls)
+					{
+						naz.SendMessage ("moveTo", hit.point);
+					}
+					selectedNazguls.Clear ();
 				}
 
 			}
@@ -72,13 +87,15 @@ public class Director : MonoBehaviour {
 
 
 		// To avoid bunching, check each agent's destination.
-		// If an agent's destination has another near-stationary agent in it, retarget the destination to a slightly closer one.
-		// (B1 - Refined Navigation.1)
-		Vector3 offset_y = new Vector3 (0.0f, 1.0f, 0.0f); // evaluate overlap with other agents at a height of 1
+		// If an agent's destination has another near-stationary agent in it,
+		// retarget the destination to a slightly closer one.
+		// (B1 - Refined Navigation: 1)
+		Vector3 offset_y = new Vector3 (0.0f, 1.0f, 0.0f); // check presence of other agents at an offset height of 1
 		foreach (NavMeshAgent agent in movingAgents)
 		{
 			Collider[] hitColliders = Physics.OverlapSphere (agent.destination + offset_y, 0.1f);
 
+			// Check overlapping colliders
 			for (int i = 0; i < hitColliders.Length; i++)
 			{
 				NavMeshAgent other = hitColliders [i].gameObject.GetComponent<NavMeshAgent> ();

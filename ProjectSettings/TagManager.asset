@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Agent
   - Obstacle
+  - Nazgul
   layers:
   - Default
   - TransparentFX
