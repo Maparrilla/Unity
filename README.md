@@ -12,3 +12,7 @@ Edit --> Project Settings --> Editor -->
   Under *Version Control*, set *Mode* to "Visible Meta Files"
   Under *Asset Serialization*, set *Mode* to "Force Text"
 
+## Reports ##
+B1 Report: https://docs.google.com/document/d/1OvrHilAHOy4b52V4BjCuBvHGH6diAp3vRP1242zzsNo/edit?usp=sharing
+
+
