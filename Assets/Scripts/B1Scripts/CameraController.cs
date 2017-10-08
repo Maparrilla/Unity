@@ -36,7 +36,7 @@ public class CameraController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        moveSpeed = 2;
+        moveSpeed = 6;
         scrollSpeed = 10;
 
         sensitivity = 0.02f;
