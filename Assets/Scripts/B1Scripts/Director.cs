@@ -16,10 +16,10 @@ public class Director : MonoBehaviour {
 
 	private NavMeshObstacle selectedObstacle;
 	private Transform TargetObject;
-//	private Material selectedMaterial;
-//	private Material agentMaterial;
-//	private Material nazgulMaterial;
-//	private Material obstacleMaterial;
+	private Material selectedMaterial;
+	private Material agentMaterial;
+	private Material nazgulMaterial;
+	private Material obstacleMaterial;
 
 	private Ray shootRay;        // Ray cast from mouse position (at camera)
 	private RaycastHit shootHit; // GameObject hit by shootRay
@@ -39,10 +39,11 @@ public class Director : MonoBehaviour {
 		movingAgents = new List<NavMeshAgent> ();
 		selectedNazguls = new List<NavMeshAgent> ();
 
-//		selectedMaterial = Resources.Load ("Assets/Resources/B1Materials/PurpleWall") as Material;
-//		agentMaterial = Resources.Load ("B1Materials/Agent") as Material;
-//		nazgulMaterial = Resources.Load ("B1Materials/Nazgul") as Material;
-//		obstacleMaterial = Resources.Load ("B1Materials/BlueCylinder") as Material;
+		selectedMaterial = Resources.Load ("B1Materials/agentselected") as Material;
+		Debug.Log (selectedMaterial);
+		agentMaterial = Resources.Load ("B1Materials/Agent") as Material;
+		nazgulMaterial = Resources.Load ("B1Materials/Nazgul") as Material;
+		obstacleMaterial = Resources.Load ("B1Materials/BlueCylinder") as Material;
 	}
 
 	// Update is called once per frame
@@ -58,15 +59,18 @@ public class Director : MonoBehaviour {
 			{
 				if (hit.collider.CompareTag ("Agent"))
 				{
-//					GameObject myObject = hit.transform.gameObject;
-//					myObject.GetComponent<MeshRenderer> ().material = selectedMaterial;
-					selectedObstacle = null;
+					deselectObstacle ();
+
+					GameObject myObject = hit.transform.gameObject;
+					myObject.GetComponent<MeshRenderer> ().material = selectedMaterial;
 					selectedAgents.Add (hit.transform.gameObject.GetComponent<NavMeshAgent> ());
 					Debug.Log ("Agent selected");
 				}
 
 				else if (hit.collider.CompareTag ("Obstacle"))
 				{
+					GameObject myObject = hit.transform.gameObject;
+					myObject.GetComponent<MeshRenderer> ().material = selectedMaterial;
 					selectedObstacle = hit.transform.gameObject.GetComponent<NavMeshObstacle> ();
 					TargetObject = hit.transform;
 					Debug.Log ("Obstacle selected");
@@ -74,28 +78,29 @@ public class Director : MonoBehaviour {
 
 				else if (hit.collider.CompareTag ("Nazgul"))
 				{
-					selectedObstacle = null;
+					deselectObstacle ();
+
+					GameObject myObject = hit.transform.gameObject;
+					myObject.GetComponent<MeshRenderer> ().material = selectedMaterial;
 					selectedNazguls.Add (hit.transform.gameObject.GetComponent<NavMeshAgent> ());
 					Debug.Log ("Nazgul selected");
 				}
 					
 				else // environment was selected
 				{
-					selectedObstacle = null;
+					
 
 					foreach (NavMeshAgent agent in selectedAgents)
 					{
 						agent.SendMessage ("moveTo", hit.point);
-//						agent.destination = hit.point;
-//						agent.Resume ();
-//						movingAgents.Add (agent);
-//						agent.gameObject.GetComponent<MeshRenderer> ().material = agentMaterial;
+						agent.gameObject.GetComponent<MeshRenderer> ().material = agentMaterial;
 					}
 					selectedAgents.Clear (); // clear selection
 
 					foreach (NavMeshAgent naz in selectedNazguls)
 					{
 						naz.SendMessage ("moveTo", hit.point);
+						naz.gameObject.GetComponent<MeshRenderer> ().material = nazgulMaterial;
 					}
 					selectedNazguls.Clear ();
 				}
@@ -108,14 +113,6 @@ public class Director : MonoBehaviour {
 		{
 			float ObjectRotationSpeed = 5f;
 			Vector3 movement = new Vector3(0,0,0);
-//			float moveX = Input.GetAxis ("HorizontalArrow");
-//			float moveZ = Input.GetAxis ("VerticalArrow");
-//			Debug.Log (moveX);
-//			movement = movement + new Vector3 (moveX, 0, moveZ);
-//
-////			Vector3.RotateTowards (movement, Camera.main.transform.forward, 2 * Mathf.PI, 0.0F);
-//			movement.y = 0;
-//			Debug.Log (movement);
 
 			foreach (KEYBOARD_INPUT val in System.Enum.GetValues(typeof(KEYBOARD_INPUT)))
 			{
@@ -144,10 +141,14 @@ public class Director : MonoBehaviour {
 			movement = Camera.main.transform.TransformDirection (movement); // transform movement vector to correspond to camera angle
 			selectedObstacle.gameObject.SendMessage ("applyForce", movement);
 		}
+	}
 
-
-
-
-
+	private void deselectObstacle()
+	{
+		if (selectedObstacle != null)
+		{
+			selectedObstacle.gameObject.GetComponent<MeshRenderer> ().material = obstacleMaterial;
+			selectedObstacle = null;
+		}
 	}
 }
