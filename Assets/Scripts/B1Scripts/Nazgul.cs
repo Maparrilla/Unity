@@ -7,22 +7,22 @@ public class Nazgul : MonoBehaviour {
 
 //	private bool moving;
 	private NavMeshAgent navMeshAgent;
-	private GameObject stench;
-	private Vector3 offset;
+	//private GameObject stench;
+	//private Vector3 offset;
 
 	// Use this for initialization
 	void Start () {
 		navMeshAgent = GetComponent<NavMeshAgent> ();
-		navMeshAgent.isStopped = true;
-		stench = GameObject.Find ("NazztyStench");
-		offset = new Vector3 (0.0f, 0.6f, 0.0f);
+		//navMeshAgent.isStopped = true;
+		//stench = GameObject.Find ("NazztyStench");
+		//offset = new Vector3 (0.0f, 0.6f, 0.0f);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		if (!navMeshAgent.isStopped)
-			stench.transform.position = transform.position + offset;
+		//if (!navMeshAgent.isStopped)
+			//stench.transform.position = transform.position + offset;
 		
 //		if (moving)
 //		{
@@ -46,7 +46,7 @@ public class Nazgul : MonoBehaviour {
 	{
 		Debug.Log ("HEL");
 		navMeshAgent.destination = dest;
-		navMeshAgent.isStopped = false;
+		//navMeshAgent.isStopped = false;
 
 //		navMeshObstacle.enabled = false;
 //		navMeshAgent.enabled = true;

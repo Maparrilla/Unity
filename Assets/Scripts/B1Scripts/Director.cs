@@ -24,6 +24,9 @@ public class Director : MonoBehaviour {
 	private Ray shootRay;        // Ray cast from mouse position (at camera)
 	private RaycastHit shootHit; // GameObject hit by shootRay
 
+    private Camera cam1;
+    private Camera cam2;
+
 	public enum KEYBOARD_INPUT : int
 	{
 		YAW_POS = KeyCode.RightArrow,
@@ -44,6 +47,12 @@ public class Director : MonoBehaviour {
 		agentMaterial = Resources.Load ("B1Materials/Agent") as Material;
 		nazgulMaterial = Resources.Load ("B1Materials/Nazgul") as Material;
 		obstacleMaterial = Resources.Load ("B1Materials/BlueCylinder") as Material;
+
+        cam1 = Camera.main;
+        cam2 = GameObject.FindGameObjectWithTag("Camera2").GetComponent<Camera>();
+
+        cam1.enabled = true;
+        cam2.enabled = false;
 	}
 
 	// Update is called once per frame
@@ -85,6 +94,18 @@ public class Director : MonoBehaviour {
 					selectedNazguls.Add (hit.transform.gameObject.GetComponent<NavMeshAgent> ());
 					Debug.Log ("Nazgul selected");
 				}
+
+                else if (hit.collider.CompareTag("Vampire"))
+                {
+                    deselectObstacle();
+
+                    GameObject myObject = hit.transform.gameObject;
+                    VampireScript script = myObject.GetComponent<VampireScript>();
+                    script.isSelected = true;
+
+                    cam1.enabled = false;
+                    cam2.enabled = true;
+                }
 					
 				else // environment was selected
 				{
@@ -141,6 +162,8 @@ public class Director : MonoBehaviour {
 			movement = Camera.main.transform.TransformDirection (movement); // transform movement vector to correspond to camera angle
 			selectedObstacle.gameObject.SendMessage ("applyForce", movement);
 		}
+
+
 	}
 
 	private void deselectObstacle()
